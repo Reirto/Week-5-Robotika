@@ -1,0 +1,62 @@
+import heapq
+
+# Fungsi heuristic menggunakan jarak Manhattan
+def heuristic(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+# Implementasi algoritma A*
+def a_star_search(grid, start, goal):
+    rows, cols = len(grid), len(grid[0])
+    open_set = [(0, start)]  # (biaya f, node saat ini)
+    heapq.heapify(open_set)
+    came_from = {}
+    g_score = {start: 0}  # Biaya dari start ke node saat ini
+    f_score = {start: heuristic(start, goal)}  # Perkiraan total biaya dari start ke goal
+
+    while open_set:
+        _, current = heapq.heappop(open_set)  # Ambil node dengan biaya f terendah
+
+        if current == goal:
+            # Rekonstruksi jalur dari tujuan ke start
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            return path[::-1]  # Balikkan urutan untuk mendapatkan dari start ke goal
+
+        # Dapatkan tetangga yang dapat diakses
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # Atas, Bawah, Kiri, Kanan
+            neighbor = (current[0] + dx, current[1] + dy)
+            tentative_g_score = g_score[current] + 1  # Asumsikan semua biaya edge = 1
+
+            if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols:  # Dalam batas grid
+                if grid[neighbor[0]][neighbor[1]] == 1:  # Jika ada rintangan
+                    continue
+
+                # Jika biaya g yang dihitung lebih kecil, atau tetangga belum dikunjungi
+                if tentative_g_score < g_score.get(neighbor, float("inf")):
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g_score
+                    f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
+
+    return None  # Kembalikan None jika tidak ada jalur
+
+# Contoh penggunaan
+grid = [
+    [0, 0, 0, 0, 0],
+    [1, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0]
+]
+start = (0, 0)
+goal = (4, 4)
+
+path = a_star_search(grid, start, goal)
+
+if path:
+    print("Jalur ditemukan:", path)
+else:
+    print("Tidak ada jalur yang ditemukan.")

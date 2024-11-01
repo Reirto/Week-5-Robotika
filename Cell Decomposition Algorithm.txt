@@ -1,0 +1,46 @@
+from queue import Queue
+
+# Fungsi untuk membagi ruang menjadi cell dan mencari jalur
+def cell_decomposition(grid, start, goal):
+    rows, cols = len(grid), len(grid[0])
+    queue = Queue()
+    queue.put((start, [start]))  # Tambahkan titik awal ke antrian
+    visited = set()
+    visited.add(start)
+
+    while not queue.empty():
+        (current, path) = queue.get()
+
+        # Jika mencapai tujuan, kembalikan jalur
+        if current == goal:
+            return path
+
+        # Tetangga di kiri, kanan, atas, bawah
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            neighbor = (current[0] + dx, current[1] + dy)
+
+            # Cek batas grid dan apakah cell bebas dari rintangan
+            if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols:
+                if grid[neighbor[0]][neighbor[1]] == 0 and neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.put((neighbor, path + [neighbor]))  # Tambahkan ke antrian dengan jalur diperbarui
+
+    return None  # Jika tidak ada jalur yang ditemukan
+
+# Contoh penggunaan
+grid = [
+    [0, 0, 0, 0, 0],
+    [1, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0]
+]
+start = (0, 0)
+goal = (4, 4)
+
+path = cell_decomposition(grid, start, goal)
+
+if path:
+    print("Jalur ditemukan:", path)
+else:
+    print("Tidak ada jalur yang ditemukan.")

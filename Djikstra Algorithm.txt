@@ -1,0 +1,42 @@
+import heapq
+
+def dijkstra(graph, start, goal):
+    # Inisialisasi variabel
+    queue = [(0, start, [])]  # Prioritas berdasarkan biaya (biaya, node saat ini, jalur sejauh ini)
+    visited = set()  # Set untuk menyimpan node yang telah dikunjungi
+
+    while queue:
+        (cost, node, path) = heapq.heappop(queue)  # Ambil node dengan biaya terendah
+        if node in visited:
+            continue  # Lewati jika node sudah dikunjungi
+
+        # Tambahkan node ke jalur dan tandai sebagai dikunjungi
+        path = path + [node]
+        visited.add(node)
+
+        # Jika mencapai tujuan, kembalikan jalur dan total biaya
+        if node == goal:
+            return (path, cost)
+
+        # Iterasi tetangga dari node saat ini
+        for (adjacent, weight) in graph.get(node, []):
+            if adjacent not in visited:
+                # Tambahkan tetangga ke antrian dengan biaya yang diperbarui
+                heapq.heappush(queue, (cost + weight, adjacent, path))
+
+    return ([], float("inf"))  # Tidak ada jalur jika kembali kosong
+
+# Contoh penggunaan
+graph = {
+    'A': [('B', 1), ('C', 4)],
+    'B': [('A', 1), ('C', 2), ('D', 5)],
+    'C': [('A', 4), ('B', 2), ('D', 1)],
+    'D': [('B', 5), ('C', 1)]
+}
+
+start = 'A'
+goal = 'D'
+path, cost = dijkstra(graph, start, goal)
+
+print("Jalur terpendek:", path)
+print("Biaya total:", cost)
